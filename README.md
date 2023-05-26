@@ -5,6 +5,7 @@ Cody Hoang
 codynguyen.hoang@gmail.com
 
 Thanks to Hiroyuki Sato, Vladimmir Agafonkin and Tim A. Pastva!
+
 "If I have seen further, it is by standing on the should of giants." - Sir Issac Newton
 
 Javascript scripts used at Sportsman's Connection.
