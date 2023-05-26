@@ -1,0 +1,31 @@
+d = [1, 1; 2, 3; 4, 2; 5, 5];
+deg = 3;
+stop = -4;
+t = [0; 0.19264241879812793; 0.6540036986197189; 1];
+bez_mat = [
+  1, 0, 0, 0;
+  0.5262568758056447, 0.37670816435547827, 0.08988578747772558, 0.007149172361151451;
+  0.041420407662324785, 0.23487909871952867, 0.4439694837148117, 0.2797310099033348;
+  0, 0, 0, 1
+];
+[n, ~] = size(bez_mat);
+
+% Gaussian elimination
+    for i = 1:n-1
+        pivotRow = augmentedMatrix(i,:);
+        disp(pivotRow);
+        % Partial pivoting
+        [~, maxIndex] = max(abs(augmentedMatrix(i+1:end, i)));
+        maxIndex = maxIndex + i;
+        augmentedMatrix([i, maxIndex], :) = augmentedMatrix([maxIndex, i], :);
+        
+        % Row operations
+        for j = i+1:n
+            factor = augmentedMatrix(j, i) / augmentedMatrix(i, i);
+            augmentedMatrix(j, :) = augmentedMatrix(j, :) - factor * augmentedMatrix(i, :);
+        end
+    end
+disp(augm)
+augmentedMatrix = [bez_mat d];
+P = bez_mat \ d; 
+disp(P);

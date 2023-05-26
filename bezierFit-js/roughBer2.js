@@ -190,27 +190,42 @@ function aff_angle(d)
     // h = zeros(n - 1, 1);
     var h = Array(n - 1).fill(0);
     // h(1) = t(1)*( 1 + (1.5*theta(2)*t(2))/(t(1) + t(2)) );
-    var h_1 = t[0] * (1 + (1.5 * theta[1] * t[1]) / (t[0] + t[1]));
-    console.log(h_1);
+    var temp = t[0] * (1 + (1.5 * theta[1] * t[1]) / (t[0] + t[1]));
+    h[0] = temp;
     // for j = 2:n-2
-    var hj;
     for (let j = 1; j <= n - 3; j++) {
         h[j] =
           t[j] *
           (1 +
             (1.5 * theta[j] * t[j - 1]) / (t[j - 1] + t[j]) +
             (1.5 * theta[j + 1] * t[j + 1]) / (t[j] + t[j + 1]));
-        if (h[j] != 0)
-            h_j = h[j];
       }
-    console.log(h_j);
-
     // h(n-1) = t(n-1) * ( 1 + (1.5*theta(n-1)*t(n-2))/(t(n-2)+t(n-1)) ); 
-    var h_3 = t[n - 2] * (1 + (1.5 * theta[n - 2] * t[n - 3]) / (t[n - 3] + t[n - 2]));
-    console.log(h_3);
+    var temp = t[n - 2] * (1 + (1.5 * theta[n - 2] * t[n - 3]) / (t[n - 3] + t[n - 2]));
+    console.log("h matrix: ")
+    h[2] = temp;
+    console.log(h);
 
-    // missing just the last 3 lines of code
+    // h = [0; h]
+    h.unshift(0); 
 
+    // h = cumsum(h)
+    // => is a notation that seperates parameters from function body
+    // { this is the body }
+    // is used define a function, if any and inherit 'this' value
+    // in this function, the parameters is the h.map(values)
+    // as in it iterates through the entire array and then returns the sum
+    // 1st: sum = 0, 2nd: sum = 2.8, 3rd: sum = 9.6, 4th sum = 14.7
+    // after function break h matrix = [ 0, 2.8480686418933945, 9.668937077004871, 14.784223846763034 ]
+    let sum = 0;
+    h = h.map((value) => {
+        sum += value;
+        return sum;
+    });
+    // h = h/h(n)
+    temp = h[n - 1];
+    h = h.map((value) => value / temp);
+    return h;
 }
 
 
@@ -365,6 +380,44 @@ function m_sqroot(m)
     result = m.map(element => element ** (1/2));
     return result;
 }
+
+// mxbern2 function
+function mxbern2(t, d)
+{
+    var n = t.length;
+    var m = 1; // we know that this is 1d only working with real world
+    const ct = t.map((value) => 1 - value);
+    var B = [];
+    for (let i = 0; i <= d; i++) {
+        let column = t.map((element, index) => Math.pow(element, i) * Math.pow(ct[index], d - i));
+        B.push(column);
+    }
+    B = transpose(B);
+    // console.log("Bernstein Matrix: ")
+    // console.log(B);
+    temp = mxBernDiag(d);
+    B = B.map((row) => {
+        return row.map((element, index) => element * temp[index]);
+    });
+    return B;
+}
+
+// cumprod
+function factorial(num) {
+    if (num <= 1) return 1;
+    return num * factorial(num - 1);
+}
+
+function mxBernDiag(d)
+{
+    var diagonalValues = [1];
+    for (let i = 1; i <= d; i++)
+    {
+        var prod = (factorial(d) / factorial(d - i)) / factorial(i);
+        diagonalValues.push(prod);
+    }
+    return diagonalValues;
+}
 // main
 
 var d = [
@@ -381,7 +434,7 @@ console.log("length of d: " + d.length);
 console.log("column lenght of d: " + d[0].length);
 var deg = 3; // configured for real world
 var stop = -4; // configured for real world
-
+var temp;
 // step 1
 
 // skip hold_was_off
@@ -389,11 +442,89 @@ var stop = -4; // configured for real world
 var i = d.length;  // number of data points
 var j = deg + 1; // number of control points
 var t = aff_angle(d);
+console.log('t matrix after aff_angle function: ')
+console.log(t);
 
-// console.log("returned deviation matrix as var t: ");
-// console.log(t);
+var bez_mat = mxbern2(t, deg);
+console.log("bernstein matrix from new vectors: ");
+console.log(bez_mat);
 
-// var bez_mat = mxbern2(t, deg);
+temp = math.multiply(
+    math.inv(math.multiply(math.transpose(bez_mat), bez_mat)),
+    math.transpose(bez_mat)
+);
 
-    
+var P = math.multiply(temp, d);
+console.log("P matrix after temp * d");
+console.log(P);
+
+var y = m_multiply(bez_mat, P);
+console.log("P matrix after bez_mat * P");
+console.log(P);
+
+var t1 = [];
+for (let i = 0; i <= 128; i++)
+    t1.push(i * (1/128));
+
+
+var bez_mat_1 = mxbern2(t1, deg);
+// console.log(bez_mat_1);
+
+var y1 = math.multiply(bez_mat_1, P);
+console.log("y1 matrix: ");
+console.log(y1);
 // Xbar = X - ones(size(X)) * diag(mean(X)); 
+// function m_linearSystem(m1, m2)
+// {
+//     var rows = m1.length;
+//     var cols = m1[0].length;
+
+//     if (rows !== cols) 
+//         throw new Error('Invalid input: A must be a square matrix.');
+      
+    
+//     if (cols !== m2.length) 
+//         throw new Error('Invalid input: The number of columns in A must match the length of b.');
+//     var n = rows;
+//     result = [];
+//     // augmented matrix
+//     for (let i = 0; i < n; i++)
+//         result[i] = m1[i].concat(m2[i]);
+//     console.log("Augmented Matrix: ");
+//     console.log(result);
+
+//     // Perform Gaussian elimination
+//     for (let i = 0; i < n; i++) {
+//         var pivotRow = result[i];
+//         console.log(i + ": " + pivotRow)
+
+//         // partial pivoting
+//         let maxIndex = i; 
+//         for (let j = i + 1; j < n; j++) {
+//             if (Math.abs(result[j][i]) > Math.abs(result[maxIndex][i])) {
+//                 maxIndex = j;
+//             }
+//         }
+//         [result[i], result[maxIndex]] = [result[maxIndex], result[i]];
+//         console.log([result[i], result[maxIndex]]);
+
+//         console.log(result);
+
+//         var pivot = result[i][i];
+//         console.log("i: " + i);
+//         console.log("pivot:" + pivot);
+
+//         if (pivot === 0)
+//             throw new Error('Invalid input: matrix is singlular.');
+        
+//         // row operations
+//         for (let j = i + 1; j < n; j++) {
+//             var factor = result[j][i] / pivot;
+//             for (let k = i; k <= n; k++)
+//                 result[j][k] -+ factor * result[i][k];
+//         }
+
+//         console.log("aug. matrix after row ops: ");
+//         console.log(result);
+//     }
+// }

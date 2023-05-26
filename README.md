@@ -18,16 +18,16 @@ simplify.js - a translation of the original javascript by Vladimir Agafonkin
     The script is CPU intensive and iterates through the pathitem multiple times.
     the current goal is to improve it's performance time. 
 
-bezierFit.js - a translation (matlab python) of 1998 Pastva, Tim A. study on bezier curve fitting
-    By implementing Berstein's Polynomials and Guass-Newton's method, we are able to approximate
-    a best fit bezier curve give a set of data points. By doing so, we are able to follow a set of 
+bezierFit.js - a translation (matlab python) of 1998 Pastva, Tim A. study on bezier curve fitting.
+    By implementing Berstein's Polynomials and Gauss-Newton's elimination, we are able to approximate
+    a best fit bezier curve given a set of data points. By doing so, we are able to follow a set of 
     data points and fit a quadratic bezier curve to the given points. 
 
 By implementing both simplify.js and bezierFit.js into a single script you can optimize the reduction
     of anchors in a pathitem and maintain the original integrity of the said pathitem.
 
 Notes: simplify.js is currently only written to use the high_quality boolean flag 
-    and bezierFit.js still requires mxbern2.m and grad7.m. (aff_angle.m nearly finished)
+    and bezierFit.js still requires grad7.m. (currenly only functional in javascript, not adobeIllustrator)
 
 Resources:
 https://github.com/shspage 
