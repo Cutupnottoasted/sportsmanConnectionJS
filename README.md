@@ -31,5 +31,7 @@ Notes: simplify.js is currently only written to use the high_quality boolean fla
 
 Resources:
 https://github.com/shspage 
+
 https://github.com/mourner/simplify-js
+
 https://upload.wikimedia.org/wikipedia/commons/1/15/Bezier_curve_fitting_%28IA_beziercurvefitti1094532767%29.pdf
